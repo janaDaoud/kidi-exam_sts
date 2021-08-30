@@ -1,5 +1,6 @@
 package com.example.demo.pckg1;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,6 +33,11 @@ public class KidiController {
 	KidRepository kidRepo;
 	@Autowired
 	CategoryRepository categoryRepo;
+	@Autowired
+	MeetingRepository meetingRepo;
+//	@Autowired
+	//test1 testt; 
+	long DAY_IN_MS = 1000 * 60 * 60 * 24;
 	
 	@PostMapping("/addNewParent")
 	public Parent addNewParent (@RequestBody Parent parent){
@@ -74,46 +80,69 @@ public class KidiController {
 	//----------------- KID -----------------
 	@PostMapping("/initiateRepository")
 	public ResponseEntity<String> intiate() {
-			//if(kidRepo.getAllKids().isEmpty()) {
-			/*Date date = new Date();
-			Kid kid1 =new Kid("kid1", new Date(), Gender.Boy);
-			kid1.setActiveDate(new Date(121,7,22));
-			Kid kid2 =new Kid("kid2", new Date(), Gender.Boy);
-			kid2.setActiveDate(new Date(121,7,12));
-			Kid kid4 =new Kid("kid4", new Date(), Gender.Boy);
-			kid4.setActiveDate(new Date(121,7,10));
-			Kid kid5 =new Kid("kid5", new Date(), Gender.Boy);
-			kid5.setActiveDate(new Date(121,5,12));
-			Kid kid6 =new Kid("kid6", new Date(), Gender.Boy);
-			kid6.setActiveDate(new Date(121,4,12));
-			Kid kid7 =new Kid("kid7", new Date(), Gender.Boy);
-			kid7.setActiveDate(new Date(121,6,12));
-			kidRepo.addNewKid(kid1);
-			kidRepo.addNewKid(kid2);
-			kidRepo.addNewKid(kid4);
-			kidRepo.addNewKid(kid5);
-			kidRepo.addNewKid(kid6);
-			kidRepo.addNewKid(kid7);*/
-			Parent p1 = new Parent("p1","25a22","p1email.com", "SSSSsad");
-			p1.setActiveDate(new Date(121,7,22));
-			Parent p2 = new Parent("p2","252v2","p1adsemail.com", "SSSSsad");
-			p2.setActiveDate(new Date(121,7,12));
-			Parent p3 = new Parent("p3","252w2","p1emasdail.com", "SSSSsad");
-			p3.setActiveDate(new Date(121,7,10));
-			Parent p4 = new Parent("p4","25a22","p1emaiaal.com", "SSSSsad");
-			p4.setActiveDate(new Date(121,5,12));
-			Parent p5 = new Parent("p5","25s22","p1eddmail.com", "SSSSsad");
-			p5.setActiveDate(new Date(121,4,12));
-			Parent p6 = new Parent("p6","2d522","p1emaddil.com", "SSSSsad");
-			p6.setActiveDate(new Date(121,6,12));
-			repoParent.addNewParent(p1);
-			repoParent.addNewParent(p2);
-			repoParent.addNewParent(p3);
-			repoParent.addNewParent(p4);
-			repoParent.addNewParent(p5);
-			repoParent.addNewParent(p6);
-		return new ResponseEntity<>("initiateRepository", HttpStatus.OK);
+		
+		
+		
+		 String[] firstNames = {"Dina", "Tasneem", "Walaa", "Guy", "Oliver",
+				"Jay", "Yuval", "Eli", "Nastia", "Asad", "Abed", "sheli", "Maya", "Or"};
+		 String[] lastNames = {"Dina", "Tasneem", "Walaa", "Guy", "Oliver",
+					"Jay", "Yuval", "Eli", "Nastia", "Asad", "Abed", "sheli", "Maya", "Or"};
+		String[] category = {"Draw", "Space", "Art", "Math", "Sport"};
+	
+       String[] gmail ={ "Aaron@gmail.com",
+               "Shadow@gmail.com",
+               "Usman@gmail.com",  "Owen@gmail.com",
+               "Pablo@gmail.com","Pardeepraj@gmail.com"};
+       String[] pass ={ "Aaron12!",
+               "Shadow14!",
+               "Usman15!",  "Owen@17!",
+               "Pablo18!","Pardee19!"};
+       
+		String[] s=courseRepo.getAllCoursesIDs();
+		Date d=new Date();
+		Date[] dates= new Date[40];
+		for(int i=0;i<40;i++) {
+			int j =(int)(Math.random() * 40);
+			dates[i]=new Date(d.getTime() - j*(DAY_IN_MS));
+		}
+		
+		for (int i=0;i<40;i++){
+	          int j = (int)(Math.random() * 10);
+	          Parent p = new Parent(firstNames[j],lastNames[j],gmail[j],pass[j]);
+	          p.setActiveDate(dates[j]);
+	          repoParent.addNewParent(p);
+	    }
+		
+		for (int i=0;i<100;i++){
+	          int j = (int)(Math.random() * 14);
+	          Kid p = new Kid(firstNames[j],dates[j],Gender.NotRelevant );
+	          kidRepo.addKid(p);
+	    }
+		
+		
+		for(int i=0;i<150;i++) {
+			int j =(int)(Math.random() * 40);
+			Meeting m = new Meeting(s[j],dates[j]);
+			meetingRepo.addNewMeeting(m);
+		}
+		
+		
+		for(Kid k : lstKids) {
+			  int j = (int)(Math.random() * 40);
+			  kidRepo.addCourseToKid(k.getId(), s[j]);
+		}
+		
+		
+		return new ResponseEntity<>("initiateRepository", HttpStatus.OK);	
 	}
+	
+	
+	@PostMapping("/addcoursetokids")
+	public int addcoursetokids() {
+		return kidRepo.addCoursetokids();
+	}
+	
+	
 	
 	@PostMapping("/AddNewKid")
 	public Kid addNewKid(@RequestBody Kid kid) {
@@ -130,11 +159,63 @@ public class KidiController {
 		kidRepo.clearAllDocuments();
 	}
 	
+	@GetMapping("/getparentsnumber")
+	public int getparentsnumber(){
+		return repoParent.getAllActiveParentsNumber();
+	}
+	
+	@GetMapping("/getWeaklyNewparentsnumber")
+	public int getWeaklyNewparentsnumber(){
+		return repoParent.getWeaklyNewParentsNumber();
+	}
+	
+	
+	
+	@GetMapping("/getMonthlyNewparentsnumber")
+	public int getMonthlyNewparentsnumber(){
+		return repoParent.getMonthlyNewParentsNumber();
+	}
+	
+	@GetMapping("/getYearlyNewparentsnumber")
+	public int getYearlyNewparentsnumber(){
+		return repoParent.getYearlyNewParentsNumber();
+	}
+	
+	
+	@GetMapping("/getweaklynewkidsnumber")
+	public int getweaklynewkidsnumber(){
+		return kidRepo.getWeaklyNewKids();
+	}
+	
+	
+	@GetMapping("/getmonthlynewkidsnumber")
+	public int getmonthlynewkidsnumber(){
+		return kidRepo.getMonthlyNewKids();
+	}
 	
 	
 	
 	
 	
+	@GetMapping("/getyearlynewkidsnumber")
+	public int getyearlynewkidsnumber(){
+		return kidRepo.getYearlyNewKids();
+	}
+	
+	@GetMapping("/getactivieparentsnumber")
+	public int getactivieparentsnumber(){
+		return repoParent.getAllActiveParentsNumber();
+	}
+	@PostMapping("/setactivedate")
+	public void setactivedate() {
+		 kidRepo.setactiveDate();
+	}
+	
+	 //*******************************************************************************jana
+	@GetMapping("/getkidsactivenumber")
+	public int getkidsactivenumber(){
+		return kidRepo.getAllActiveKidsNumber();
+	}
 	//------------------------------- COURSE ----------------------------------------
 	@PostMapping("addNewCourse")
 	public List<Course> addCourse(Course course) {
@@ -166,11 +247,154 @@ public class KidiController {
 		return categoryRepo.getKidsCountByCategory(period);
 	}
 	
+
+
+	
+	@GetMapping("/getcoursecategoryid/{id}")
+	public String getcoursecategoryid(@PathVariable String id){
+		return courseRepo.getCourseCategoryId(id);
+	}
+	
+	
+	@GetMapping("/getkidsnumberincategory/{id}")
+	public int getkidsnumberincategory(@PathVariable String id){
+		return kidRepo.membersInCategory(id);
+	}
 	
 	
 
 	
 	
+	
+	
+	
+	@GetMapping("/checkifcourseactineinperiod/{id}/{period}")
+	public Boolean checkifcourseactineinperiod(@PathVariable String id , @PathVariable int period){
+		return courseRepo.checkIfCourseIsActive(id , period);
+	}
+	
+	
+	
+	
+
+	//***************************************************************************************************************************************
+	
+
+	
+	@GetMapping("/getpercentofnewkids/{period}")
+	public double getpercentofnewkids(@PathVariable int period){
+		return kidRepo.getPercentOfNewKids(period);
+	}
+	
+	@GetMapping("/getpercentofnewparents/{period}")
+	public double getpercentofnewparents(@PathVariable int period){
+		return repoParent.getPercentOfNewParents(period);
+	}
+	
+	@GetMapping("/getkidsnumincategory/{d1}/{d2}")
+	public HashMap<String, Integer> getkidsnumincategory(@PathVariable Date d1 , @PathVariable Date d2){
+		return kidRepo.getkidsNumInCategory(d1,d2);
+	}
+	
+	
+	@GetMapping("/getcategorycourses/{cattid}")
+	public ArrayList<Course> getcategorycourses(@PathVariable String cattid){
+		return categoryRepo.getCategoryCourses(cattid);
+	}
+	
+	
+	
+	/*@GetMapping("/getkidsnumincategoryperperiod/{period}")
+	public HashMap<String, Integer> getkidsnumincategoryperperiod(@PathVariable int period){
+		return kidRepo.getkidsNumInCategoryPerPeriod(period);
+	}*/
+	
+	
+	
+	@GetMapping("/getcategoryweeklytrend")
+	public HashMap<Category, HashMap<Integer, Integer>> getcategoryweeklytrend(){
+		return kidRepo.getCategoryWeeklytrend();
+			}
+	
+	
+	@GetMapping("/getcategoryweaklytrend")
+	public HashMap<Category, HashMap<Integer, Integer>> getcategoryweaklytrend(){
+		return kidRepo.getCategoryWeeklyKidsNumber();
+			}
+	
+	@GetMapping("/getcategoryyearlytrend")
+	public HashMap<Category, HashMap<Integer, Integer>> getcategoryyearlytrend(){
+		return kidRepo.getCategoryYearlytrend();
+			}
+	
+	
+	
+	@GetMapping("/getcategorymonthlytrend")
+	public HashMap<Category, HashMap<Integer, Integer>> getcategorymonthlytrend(){
+		return kidRepo.getCategoryMonthlytrend();
+			}
+	
+	
+	
+	
+	@GetMapping("/getallmeetingsnumbers")
+	public int getallmeetingsnumbers(){
+		return meetingRepo.getAllMeetingsNumbers();
+			}
+	
+	
+	@GetMapping("/getallmeetingsperperiod/{period}")
+	public double getallmeetingsperperiod(@PathVariable int period){
+		return meetingRepo.getAllMeetingsPerPeriod(period);
+			}
+	
+	
+	@GetMapping("/gethappenedmeetingsnumberperperiod/{period}")
+	public double gethappenedmeetingsnumberperperiod(@PathVariable int period){
+		return meetingRepo.getHappenedMeetingsNumberPerPeriod(period);
+			}
+	@GetMapping("/getmeetingpercent/{period}")
+	public double getmeetingpercent(@PathVariable int period){
+		return meetingRepo.getMeetingPercent(period);
+			}
+	
+	
+	/*@GetMapping("/getnewkidsnumpercategory/{period}")
+	public int getnewkidsnumpercategory(@PathVariable int period){
+		return kidRepo.getNewKidsNumPerPeriod(period);
+			}*/
+	
+	@GetMapping("/getnewparentsnumpercategory/{period}")
+	public int getnewparentsnumpercategory(@PathVariable int period){
+		return repoParent.getNewParentsNumPerPeriod(period);
+			}
+//**************************************************************************************************************
+	@GetMapping("/kidschart/{period}")
+	public double[] kidschart(@PathVariable int period){
+		return kidRepo.kidsChart(period);
+			}
+	
+	@GetMapping("/parentschart/{period}")
+	public double[] parentschart(@PathVariable int period){
+		return repoParent.parentsChart(period);
+			}
+	
+	@GetMapping("/meetingrepo/{period}")
+	public double[] meetingrepo(@PathVariable int period){
+		return meetingRepo.meetingsChart(period);
+			}
+	
+	@GetMapping("/getkidsnumincategoryperperiod/{period}")
+	public 	HashMap<String, Integer> getkidsnumincategoryperperiod(@PathVariable int period){
+		return kidRepo.getkidsNumInCategoryPerPeriod(period);
+			}
+	
+
+	@GetMapping("/barchartresults/{period}")
+	public 	HashMap<Category, HashMap<Integer, Integer>> barchartresults(@PathVariable int period){
+		return kidRepo.barChartResults(period);
+			}
+
 	
 	
 }

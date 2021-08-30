@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
+//import sun.jvm.hotspot.utilities.Interval;
+//import org.joda.time.DateTime;
 
 @Repository
 public class KidRepository {
@@ -38,6 +40,16 @@ public List<Kid> retrieveAllKids(){
 	return kidRepo.findAll();
 }
 
+public void setactiveDate() {
+
+	List <Kid> lstKids=retrieveAllKids();
+	Date d=new Date();
+	for (Kid k : lstKids) {
+		System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+		k.setActiveDate(d);
+	}
+		
+}
 /**
  * 
  * @param kid a new Kid to Add
@@ -45,6 +57,7 @@ public List<Kid> retrieveAllKids(){
  */
 public Kid addNewKid(Kid kid) {
 	kid.setStatus(Status.Active);
+	kid.setActiveDate(new Date());
 	kidRepo.save(kid);
 	return kid;
 }
@@ -56,6 +69,7 @@ public Kid addNewKid(Kid kid) {
  */
 public List<Kid> addKid(Kid kid){
 	kid.setStatus(Status.Active);
+	kid.setActiveDate(new Date());
 	kidRepo.save(kid);
 	return kidRepo.findAll();
 }
@@ -76,13 +90,29 @@ public Kid getKidWithId(String id) {
 	
 	Optional<Kid> optional = kidRepo.findById(id);
 	if(optional.isPresent()) {
-		System.out.println("KID IS PRESENT");
+		//System.out.println("KID IS PRESENT");
 		return optional.get();
 	}
 	System.out.println("KID ISNT PRESENT");
 	return null;
 }
 
+public int addCoursetokids() {
+	List <Kid> lstKids=getAllActiveKids();
+	String[] s=courseRepo.getAllCoursesIDs();
+	System.out.println(s.length);
+	System.out.println(lstKids.size());
+//	ArrayList<String> activeC = new ArrayList<String>();
+	for (Kid k : lstKids) {
+		 int j = (int)(Math.random() * s.length);
+		 ArrayList<String> activeC = new ArrayList<String>();
+		 activeC.add(s[j]);
+		 System.out.println(activeC.size());
+		 k.setActiveCourses(activeC);
+	 }
+	
+	return 10;
+}
 /**
  * 
  * @param kidId to get it's parent's ID
@@ -323,17 +353,16 @@ public HashMap<String, Integer> getNewKids(int period){
 	}
 	int kidsCount = 0;
 	int totalKids = 0;
-	Date current = new Date();
 	for( Kid k : kids) {
 		if(  k.getStatus().equals(Status.Active)) {
 			totalKids++;
 			if(k.getActiveDate().after(d)) {
-				kidsCount++;	
+				kidsCount++;
 			}
 		}
 	}
 HashMap<String, Integer> toReturn = new HashMap<String, Integer>();
-toReturn.put("New Kids", kidsCount);
+toReturn.put("newKids", kidsCount);
 toReturn.put("totalKids",totalKids );
 	return toReturn;
 }
@@ -386,11 +415,330 @@ public List<Course> getKidNotRegisteredCoursesByCategory( String kidId, String c
 	return null; 
 }
 
-
+/**
+ * 
+ * @param kid
+ * @return
+ */
 public List<Kid> createKid(Kid kid) {	
 	kid.setActiveDate(new Date());	
+	kid.setStatus(Status.Active);
 	kidRepo.save(kid);	
 	return kidRepo.findAll();	
+}
+
+
+
+
+public int membersInCategory(String cattId){
+	
+	List <Kid> lstKids=getAllActiveKids();
+	int kidsnum=0;
+	for (Kid k : lstKids) {
+		ArrayList<String> coursesId=k.getActiveCourses();
+		for(int i=0;i<coursesId.size();i++) {
+			Course c=courseRepo.findCourseByID(coursesId.get(i));
+			String catt=c.getCategoryId();
+			if(cattId.equals(catt)) {kidsnum++;}
+		}	
+	}	
+	return kidsnum;
+}
+
+
+public double getPercentOfNewKids(int period) {
+	//"Input: 1- For week 2- For month 3- For year."
+	double allKidsNumber=getAllActiveKidsNumber();
+	double result=0;
+	if(period==1) {
+		int newKidsNumber=getWeaklyNewKids();
+		result= (newKidsNumber/allKidsNumber)*100;
+	}
+	if(period==2) {
+		int newKidsNumber=getMonthlyNewKids();
+	    result= (newKidsNumber/allKidsNumber)*100;
+	}
+	if(period==3) {
+		int newKidsNumber=getYearlyNewKids();
+		result= (newKidsNumber/allKidsNumber)*100;
+	}
+	
+	return result;
+}
+
+public List <Kid> getAllActiveKids (){
+	List <Kid> lstKids = new ArrayList<>();
+	for (Kid k : kidRepo.findAll()) {
+		if (k.getStatus().equals(Status.Active))
+			lstKids.add(k);
+	}
+	return lstKids;
+}
+
+
+public int getWeaklyNewKids() {
+	List <Kid> lstKids=getAllActiveKids();
+	
+	int newKidsNumber=0;
+    Date TodayDate = new Date();  
+    Date lastWeek = new Date(TodayDate.getTime() - 7*(DAY_IN_MS));
+	for (Kid k : lstKids) {
+		if (k.getActiveDate().after(lastWeek))
+			newKidsNumber++;
+	}
+	return newKidsNumber;	
+}
+
+
+public int getMonthlyNewKids() {
+	List <Kid> lstKids=getAllActiveKids();
+	
+	int newKidsNumber=0;
+    Date TodayDate = new Date();  
+    Date lastWeek = new Date(TodayDate.getTime() - 31*(DAY_IN_MS));
+	for (Kid k : lstKids) {
+		if (k.getActiveDate().after(lastWeek))
+			newKidsNumber++;
+	}
+	return newKidsNumber;	
+}
+
+
+
+public int getYearlyNewKids() {
+	List <Kid> lstKids=getAllActiveKids();
+	
+	int newKidsNumber=0;
+    Date TodayDate = new Date();  
+    Date lastWeek = new Date(TodayDate.getTime() - 365*(DAY_IN_MS));
+	for (Kid k : lstKids) {
+		if (k.getActiveDate().after(lastWeek))
+			newKidsNumber++;
+	}
+	return newKidsNumber;	
+}
+
+/**
+* 
+* @return number of active kids
+*/
+
+public int getAllActiveKidsNumber () {
+	int activeKidsNumber=0;
+	for (Kid k : kidRepo.findAll()) {
+		if (k.getStatus().equals(Status.Active))
+			activeKidsNumber++;
+	}
+	return activeKidsNumber;
+}
+
+
+public HashMap<String, Integer> getkidsNumInCategory(Date startDate, Date endDate){
+	HashMap<String, Integer> catKidsNum = new HashMap<String, Integer>();
+	for (Category cat : categoryRepo.getAllCategories()) {
+		int count = 0;
+		catKidsNum.put(cat.getName(), count);
+		for (Course course : categoryRepo.getCategoryCourses(cat.getId())) {
+			if ((course.getStartDateTime().after(startDate) && course.getStartDateTime().before(endDate))|| 
+					(course.getFinishDateTime().after(startDate) && course.getFinishDateTime().before(endDate)) ||
+					(course.getStartDateTime().before(startDate) && course.getFinishDateTime().after(endDate))) {
+		
+				for (String kidId : course.getKidsIDs()) {
+					//System.out.println(kidId);
+					if (getKidWithId(kidId).getStatus() == Status.Active) {
+						catKidsNum.put(cat.getName(), count++);
+					}
+				}
+			}
+		}	
+	}
+	return catKidsNum;
+}
+
+
+
+
+
+
+public HashMap<String, Integer> getkidsNumInCategoryPerPeriod(int period){
+	Date firstDate=new Date();
+	Date lastDate=new Date();
+	if(period==1) {
+		firstDate=new Date(lastDate.getTime() - 7*(DAY_IN_MS));
+	}
+	if(period==2) {
+		firstDate=new Date(lastDate.getTime() - 30*(DAY_IN_MS));
+	}
+	if(period==3) {
+		firstDate=new Date(lastDate.getTime() - 365*(DAY_IN_MS));
+	}
+	HashMap<String, Integer> catKidsNum = new HashMap<String, Integer>();
+	catKidsNum=getkidsNumInCategory(firstDate,lastDate);
+	return catKidsNum; 	
+}
+
+
+
+
+public HashMap<Category, HashMap<Integer, Integer>> getCategoryWeeklytrend(){
+	
+	HashMap<Category, HashMap<Integer, Integer>> trend= new HashMap<Category, HashMap<Integer, Integer>>();
+	Date firstDate=new Date();
+	Date lastDate=new Date();
+	Date today=new Date();
+	for (int i = 7; i >0; i --) {
+		HashMap<String, Integer> catKidsNum = new HashMap<String, Integer>();
+		firstDate=new Date(today.getTime() - i*(DAY_IN_MS));
+		lastDate=new Date(today.getTime() - (i+1)*(DAY_IN_MS));
+		catKidsNum=getkidsNumInCategory(lastDate,firstDate);
+		System.out.println(lastDate);
+		System.out.println(catKidsNum);
+		System.out.println(catKidsNum);
+		for(String h : catKidsNum.keySet()) {
+		Category h1=categoryRepo.getCategoryById()
+		trend.put(h1, new HashMap<Integer, Integer>());
+		trend.get(h1).put(7 - i, catKidsNum.get(h1));
+		}
+	}
+	return trend;
+}
+
+
+public HashMap<Category, HashMap<Integer, Integer>> barChartResults(int period){
+	
+	if(period==1) {return getCategoryWeeklyKidsNumber();}
+	if(period==2) {return getCategoryMonthlytrend();}
+	if(period==3) {return getCategoryYearlytrend();}
+
+	return getCategoryYearlytrend();
+}
+
+
+
+
+
+public HashMap<Category, HashMap<Integer, Integer>> getCategoryWeeklyKidsNumber(){
+;
+	HashMap<Category, HashMap<Integer, Integer>> kidsNum= new HashMap<Category, HashMap<Integer, Integer>>();
+	
+	for (Category cat : categoryRepo.getAllCategories()) {
+		    
+		kidsNum.put(cat, new HashMap<Integer, Integer>());
+		for (int i = 0; i < 7; i ++) {
+			int counter = 0;
+			Date today=new Date();
+			Date day =new Date(today.getTime() - i*(DAY_IN_MS));
+			for (Course course : categoryRepo.getCategoryCourses(cat.getId())) {
+				if (course.getStartDateTime().equals(day)
+				|| (course.getFinishDateTime().equals(day)) 
+				|| (course.getStartDateTime().before(day) 
+				&& course.getFinishDateTime().after(day))) {
+					for (String kidId : course.getKidsIDs()) {
+						if (getKidWithId(kidId).getStatus() == Status.Active) {
+							counter++;
+						}
+					}
+				}
+			}
+			kidsNum.get(cat).put(7 - i, counter);
+		}
+	}
+return kidsNum;
+}
+
+
+
+public HashMap<Category, HashMap<Integer, Integer>> getCategoryMonthlytrend(){
+	
+	Date today = new Date();
+	Date lastDay = null;
+	Date firstDay = null;
+	HashMap<Category, HashMap<Integer, Integer>> trend= new HashMap<Category, HashMap<Integer, Integer>>();
+	for (Category cat : categoryRepo.getAllCategories()) {
+		trend.put(cat, new HashMap<Integer, Integer>());
+		for (int i = 0; i < 4; i ++) {
+			int count = 0;
+			lastDay = new Date(today.getTime() - 7*i*(DAY_IN_MS));
+			firstDay = new Date(today.getTime() - 7*(i+1)*(DAY_IN_MS));;
+		
+		
+			for (Course course : categoryRepo.getCategoryCourses(cat.getId())) {
+				if (course.getStartDateTime().equals(lastDay)|| (course.getFinishDateTime().equals(lastDay))
+						|| course.getStartDateTime().equals(firstDay)|| (course.getFinishDateTime().equals(firstDay))  
+						|| (course.getStartDateTime().before(firstDay)&& course.getFinishDateTime().after(firstDay))
+						|| (course.getStartDateTime().after(firstDay)&& course.getStartDateTime().before(lastDay))
+						|| (course.getFinishDateTime().after(firstDay)&& course.getFinishDateTime().before(lastDay))
+						
+						) {
+					for (String kidId : course.getKidsIDs()) {
+						if (getKidWithId(kidId).getStatus() == Status.Active) {
+							count++;
+						}
+					}
+				}
+			}
+			trend.get(cat).put(4 - i, count);
+		}
+	}
+return trend;
+}
+
+
+public HashMap<Category, HashMap<Integer, Integer>> getCategoryYearlytrend(){
+	
+	Date today = new Date();
+	Date lastDay = null;
+	Date firstDay = null;
+	HashMap<Category, HashMap<Integer, Integer>> trend= new HashMap<Category, HashMap<Integer, Integer>>();
+	for (Category cat : categoryRepo.getAllCategories()) {
+		trend.put(cat, new HashMap<Integer, Integer>());
+		for (int i = 0; i < 12; i ++) {
+			int count = 0;
+			lastDay = new Date(today.getTime() - 30*i*(DAY_IN_MS));
+			firstDay = new Date(today.getTime() - 30*(i+1)*(DAY_IN_MS));;
+		
+		
+			for (Course course : categoryRepo.getCategoryCourses(cat.getId())) {
+				if (course.getStartDateTime().equals(lastDay)|| (course.getFinishDateTime().equals(lastDay))
+						|| course.getStartDateTime().equals(firstDay)|| (course.getFinishDateTime().equals(firstDay))  
+						|| (course.getStartDateTime().before(firstDay)&& course.getFinishDateTime().after(firstDay))
+						|| (course.getStartDateTime().after(firstDay)&& course.getStartDateTime().before(lastDay))
+						|| (course.getFinishDateTime().after(firstDay)&& course.getFinishDateTime().before(lastDay))
+						
+						) {
+					for (String kidId : course.getKidsIDs()) {
+						if (getKidWithId(kidId).getStatus() == Status.Active) {
+							count++;
+						}
+					}
+				}
+			}
+			trend.get(cat).put(12 - i, count);
+		}
+	}
+return trend;
+}
+
+
+public int getNewKidsNumPerPeriod(int period) {
+	
+	if(period==1) {
+		return getWeaklyNewKids();
+	}
+	if(period==2) {
+		return getMonthlyNewKids();
+	}
+
+	return getYearlyNewKids();
+	
+}
+
+public double[] kidsChart(int period) {
+	double[] results= {0,0,0};
+	results[0]=getAllActiveKidsNumber();
+	results[1]=getNewKidsNumPerPeriod(period);
+	results[2]=getPercentOfNewKids(period);
+	return results;
 }
 
 }

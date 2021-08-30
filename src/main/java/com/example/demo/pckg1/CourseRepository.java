@@ -49,6 +49,11 @@ public class CourseRepository {
 		
 		return CourseRepository.findAll();
 	}
+	
+	
+	
+	
+	
 	/**
 	 * Returns all Course
 	 * 
@@ -57,6 +62,18 @@ public class CourseRepository {
 	public List<Course> getAllCourses() {
 		return CourseRepository.findAll();
 	}
+	
+	
+	public String[] getAllCoursesIDs() {
+		List<Course> C= CourseRepository.findAll();
+		String[] s=new String[C.size()];
+		for(int i=0;i<C.size();i++) {
+			s[i]=C.get(i).getID();
+		}
+		return s;
+	}
+	
+
 	/**
 	 * Returns a specific course
 	 * 
@@ -86,6 +103,18 @@ public class CourseRepository {
 			}
 		return null;
 	}
+	
+	
+	
+	 
+		public String getCourseCategoryId(String courseID) {
+			String categoryID="0";
+			Optional<Course> course = CourseRepository.findById(courseID);
+			if (course.isPresent()) {
+				 categoryID = course.get().getCategoryId();
+			}
+			return categoryID ;
+		}
 	/**
 	 * Returns a specific course's leaders
 	 * 
@@ -250,5 +279,59 @@ public class CourseRepository {
 		return null;
 	}
 
+	
+	public Boolean checkIfCourseIsActive(String courseId , int period) {
+		//"Input: 1- For week 2- For month 3- For year."
+		  Course c=findCourseByID(courseId);
+		  Date courseFinishDate= c.getFinishDateTime();
+		  Date courseStartDate=c.getStartDateTime();
+
+		  Date TodayDate = new Date(); 
+		  
+		  
+		  if(period==2) {
+			  TodayDate = new Date(); 
+			  Date lastmonth = new Date(TodayDate.getTime() - (30*(DAY_IN_MS)));
+			  
+			  if( courseFinishDate.after(lastmonth) ) {return true;}
+			  else return false;
+		  }
+		  
+		  
+		  if(period==3) {
+			  TodayDate = new Date(); 
+			  Date lastyear = new Date(TodayDate.getTime() - (365*(DAY_IN_MS)));
+			 // Date courseStartDate=c.getStartDateTime();
+			  
+			  if(courseStartDate.after(lastyear)) { return true;}
+			  else return false;
+		
+		  }
+		  if(courseFinishDate.after(TodayDate)) {
+			  if(period==1) {
+				  TodayDate = new Date(); 
+				  Date lastweek = new Date(TodayDate.getTime() - (7*(DAY_IN_MS)));
+				 
+				  
+				  if(courseStartDate.after(lastweek)) { return true;}
+				  else return false;
+			  }
+			  
+			  /*if(period==3) {
+				  TodayDate = new Date(); 
+				  Date lastyear = new Date(TodayDate.getTime() - (365*(DAY_IN_MS)));
+				 // Date courseStartDate=c.getStartDateTime();
+				  
+				  if(courseStartDate.after(lastyear)) { return true;}
+				  else return false;
+			
+			  }*/
+			  
+			  
+			  
+		  }
+		  	
+		return false;
+	}
 
 }

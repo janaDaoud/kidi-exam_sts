@@ -28,7 +28,8 @@ public class Parent {
 	@Field
 	private Status status;  
 	@Field
-	private List <String> kids= new ArrayList<String>();;
+	private List <String> kids= new ArrayList<String>();
+	@Field String status1;
 	//@Field
 	//private List <Bills> bill;
 	@Field
@@ -45,8 +46,19 @@ public class Parent {
 		this.phoneNumber = phoneNumber;
 		this.email = email;
 		this.password = password;
-		status = Status.Active; 
+		status = Status.Active; //לא עובד 
+		//status=status.fromString(status11);
+		status1 = status.toString();
 		activeDate = new Date(); 
+		System.out.println("constarctor of parent");
+	}
+
+	public String getStatus1() {
+		return status1;
+	}
+
+	public void setStatus1(String status1) {
+		this.status1 = status1;
 	}
 
 	public String getId() {

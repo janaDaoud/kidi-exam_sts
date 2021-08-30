@@ -20,6 +20,7 @@ public class CategoryRepository {
 ICategoryRepository categoryRepo;
 @Autowired
 CourseRepository courseRepo;
+
 long DAY_IN_MS = 1000 * 60 * 60 * 24;
 
 /**
@@ -31,6 +32,8 @@ public Category createCategory(Category category) {
 	return categoryRepo.save(category);
 }
 
+
+
 /**
  * 
  * @param category to add to the db
@@ -40,7 +43,32 @@ public ArrayList<Category> addCategory(Category category){
 	categoryRepo.save(category);
 	return (ArrayList<Category>) categoryRepo.findAll();
 }
+/**	
+ *Adds a category, and returns all categories 	
+ * @param category	
+ * @return list of all categories	
+ */	
+public List<Category> addANewCategory(Category category) {	
+	Category c = findCategoryByName(category.getName());	
+	if(c != null)	
+		return categoryRepo.findAll();	
+	categoryRepo.save(category);	
+	return categoryRepo.findAll();
+}
 
+/**	
+ * Given a category name, returns the category	
+ * 	
+ * @param name	
+ * @return category	
+ */	
+private Category findCategoryByName(String name) {	
+	for (Category c : categoryRepo.findAll()) {	
+		if (c.getName().equals(name))	
+			return c;	
+	}	
+	return null;	
+}
 /**
  * 
  * @param id of category wants to retrieve
@@ -130,5 +158,28 @@ public HashMap<String, Integer> getKidsCountByCategory(int period){
 	}
 	return kidsCountByCategory;
 }
+
+
+/**
+ * 
+ * @return a list of all category courses.
+ */
+public ArrayList<Course> getCategoryCourses(String categoryID) {
+	ArrayList<Course> categoryCourses = new ArrayList<Course>();
+	for (Course c : courseRepo.getAllCourses())
+		if (c.getCategoryId().equals(categoryID)) {
+			categoryCourses.add(c);
+		}
+	return categoryCourses;
+}
+
+
+
+
+
+
+
+
+
 
 }

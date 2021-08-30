@@ -40,7 +40,7 @@ public class Course {
 	private String zoomMeetingLink;
 	
 	@Field
-	private ArrayList<String> kidsIDs= new ArrayList<String>();;
+	private ArrayList<String> kidsIDs= new ArrayList<String>();
 	
 	@Field
 	private Day day;

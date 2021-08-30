@@ -3,6 +3,8 @@ package com.example.demo.pckg1;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,13 @@ public class MeetingRepository {
 		return (ArrayList<Meeting>) meetingRepo.findAll();
 	}
 	
+	/**
+	 * 
+	 * @return All Meetings number
+	 */
+	public int getAllMeetingsNumbers(){
+		return getAllMeetings().size();
+	}
 	
 	
 	////////////////// CHANGE IT TO CRITERIA YA MAALIM
@@ -84,4 +93,94 @@ public class MeetingRepository {
 		toReturn.put("activityTime", doneTime);
 		return toReturn;
 	}
+	
+	
+	
+	public int getAllMeetingsForDate(Date startDate, Date endDate){
+		int all = 0;
+		
+		 for (Meeting m: getAllMeetings()) {
+			 if (m.getMeetingDateTime().after(startDate) && m.getMeetingDateTime().before(endDate)) {
+				 all++;
+				
+			 }
+		 }	
+		 return all;
+	 }
+	
+	public double getAllMeetingsPerPeriod(int period){
+		double all = 0;
+		Date endDate=new Date();
+		Date startDate=new Date();
+		if(period==1) {
+			 startDate=new Date(endDate.getTime() - 7*(DAY_IN_MS));
+		}
+		if(period==2) {
+			 startDate=new Date(endDate.getTime() - 30*(DAY_IN_MS));
+		}
+		if(period==3) {
+			 startDate=new Date(endDate.getTime() - 365*(DAY_IN_MS));
+
+		}
+	 for (Meeting m: getAllMeetings()) {
+			 if (m.getMeetingDateTime().after(startDate) && m.getMeetingDateTime().before(endDate)) {
+				 all++;
+				
+			 }
+		 }	
+		 return all;
+	 }
+	
+	public int getHappenedMeetingsNumber(Date startDate, Date endDate){
+		int happend = 0;
+		 for (Meeting m: getAllMeetings()) {
+			 if (m.getMeetingDateTime().after(startDate) && m.getMeetingDateTime().before(endDate)) {
+				 if (m.isCancelled() == false) {
+					 happend++;
+				 }
+			 }
+		 }
+		 return happend;
+	 }
+	
+	public double getHappenedMeetingsNumberPerPeriod(int period){
+		double happend = 0;
+		Date endDate=new Date();
+		Date startDate=new Date();
+		if(period==1) {
+			 startDate=new Date(endDate.getTime() - 7*(DAY_IN_MS));
+		}
+		if(period==2) {
+			 startDate=new Date(endDate.getTime() - 30*(DAY_IN_MS));
+		}
+		if(period==3) {
+			 startDate=new Date(endDate.getTime() - 365*(DAY_IN_MS));
+
+		}
+		 for (Meeting m: getAllMeetings()) {
+			 if (m.getMeetingDateTime().after(startDate) && m.getMeetingDateTime().before(endDate)) {
+				 if (m.isCancelled() == false) {
+					 happend++;
+				 }
+			 }
+		 }
+		 return happend;
+	 }
+	
+	
+	public double getMeetingPercent(int period) {
+		double happened=getHappenedMeetingsNumberPerPeriod(period);
+		double all=getAllMeetingsPerPeriod(period);
+		return (happened/all)*100;
+	}
+	
+	
+	public double[] meetingsChart(int period) {
+		double[] results= {0,0,0};
+		results[0]=getAllMeetingsPerPeriod(period);
+		results[1]=getHappenedMeetingsNumberPerPeriod(period);
+		results[2]=getMeetingPercent(period);
+		
+		return results;
+		}
 }

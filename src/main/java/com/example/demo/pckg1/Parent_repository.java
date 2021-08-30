@@ -1,8 +1,6 @@
 package com.example.demo.pckg1;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +61,27 @@ public class Parent_repository {
 		}
 		return lstParent;
 	}
+	
+	
+	
+	/**
+	 * @return Number of all active parents *******************************************************jana
+	 */	
+	
+
+	public int getAllActiveParentsNumber () {
+		int activeParentsNumber=0;
+		for (Parent p : parentRepo.findAll()) {
+			if (p.getStatus().equals(Status.Active))
+				activeParentsNumber++;
+		}
+		return activeParentsNumber;
+	}
+
+	
+	
+	
+	
 	/**
 	 * @return List of all parents 
 	 */	
@@ -77,6 +96,58 @@ public class Parent_repository {
 	 * @return the parent if found or null
 	 */	
 	
+	
+	
+	/**
+	 * @return Number of new parents (last weak) *******************************************************jana
+	 */	
+	
+	 public int getWeaklyNewParentsNumber () {
+		int newParentsNumber=0;
+	    Date TodayDate = new Date();  
+	    Date yesterday = new Date(TodayDate.getTime() - 7*(DAY_IN_MS));
+		for (Parent p : parentRepo.findAll()) {
+			if (p.getActiveDate().after(yesterday))
+				newParentsNumber++;
+		}
+		return newParentsNumber;
+	}
+
+
+		/**
+		 * @return Number of new parents (last month) *******************************************************jana
+		 */	
+		
+		 public int getMonthlyNewParentsNumber () {
+			int newParentsNumber=0;
+		    Date TodayDate = new Date();  
+		    Date yesterday = new Date(TodayDate.getTime() - (30*(DAY_IN_MS)));
+			for (Parent p : parentRepo.findAll()) {
+				if (p.getActiveDate().after(yesterday))
+					newParentsNumber++;
+			}
+			return newParentsNumber;
+		}
+	 
+	 
+		 
+			/**
+			 * @return Number of new parents (last year) *******************************************************jana
+			 */	
+			
+			 public int getYearlyNewParentsNumber () {
+				int newParentsNumber=0;
+			    Date TodayDate = new Date();  
+			    Date yesterday = new Date(TodayDate.getTime() - (365*(DAY_IN_MS)));
+				for (Parent p : parentRepo.findAll()) {
+					if (p.getActiveDate().after(yesterday))
+						newParentsNumber++;
+				}
+				return newParentsNumber;
+			}
+		 
+	 
+	 
 	public Parent getSpecificParent (String email, String password) {
 		Parent parent = findUserByEmail(email);
 		if (parent != null) {
@@ -304,6 +375,50 @@ public class Parent_repository {
 	toReturn.put("totalParents",totalParents );
 		return toReturn;
 	}
+	
+	
+	
+	public double getPercentOfNewParents(int period) {
+		//"Input: 1- For week 2- For month 3- For year."
+		double allParentsNumber=getAllActiveParentsNumber();
+		double result=0;
+		if(period==1) {
+			int newParentsNumber=getWeaklyNewParentsNumber();
+			result= (newParentsNumber/allParentsNumber)*100;
+		}
+		if(period==2) {
+			int newParentsNumber=getMonthlyNewParentsNumber();
+		    result= (newParentsNumber/allParentsNumber)*100;
+		}
+		if(period==3) {
+			int newParentsNumber=getYearlyNewParentsNumber();
+			result= (newParentsNumber/allParentsNumber)*100;
+		}
+		
+		return result;
+	}
+	
+	
+	public int getNewParentsNumPerPeriod(int period) {
+		
+		if(period==1) {
+			return getWeaklyNewParentsNumber();
+		}
+		if(period==2) {
+			return getMonthlyNewParentsNumber();
+		}
 
+		return getYearlyNewParentsNumber();
+		
+			
+	}
 
+	public double[] parentsChart(int period) {
+		double[] results= {0,0,0};
+		results[0]=getAllActiveParentsNumber();
+		results[1]=getNewParentsNumPerPeriod(period);
+		results[2]=getPercentOfNewParents(period);
+		return results;
+	}
+	
 }
